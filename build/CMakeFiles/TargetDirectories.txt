@@ -1,4 +1,0 @@
-/home/filippo/github/rrt-star/build/CMakeFiles/RRTStar.dir
-/home/filippo/github/rrt-star/build/CMakeFiles/RRTStarTest1.dir
-/home/filippo/github/rrt-star/build/CMakeFiles/edit_cache.dir
-/home/filippo/github/rrt-star/build/CMakeFiles/rebuild_cache.dir

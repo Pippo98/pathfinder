@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/RRTStar_test_1.dir/tests/test_1.cpp.o -o ../bin/RRTStar_test_1 

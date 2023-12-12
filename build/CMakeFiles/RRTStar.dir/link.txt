@@ -1,2 +1,0 @@
-/usr/bin/ar qc libRRTStar.a CMakeFiles/RRTStar.dir/src/rrt_star.cpp.o CMakeFiles/RRTStar.dir/src/point.cpp.o CMakeFiles/RRTStar.dir/src/polygon.cpp.o
-/usr/bin/ranlib libRRTStar.a
