@@ -7,6 +7,7 @@ static inline bool is_zero(double value) {
 }
 
 Point::Point() : m_x(0.0), m_y(0.0) {}
+Point::Point(double xy) : m_x(xy), m_y(xy) {}
 Point::Point(double x, double y) : m_x(x), m_y(y) {}
 Point::Point(const Point& other) : m_x(other.x()), m_y(other.y()) {}
 

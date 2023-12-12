@@ -20,10 +20,14 @@ class Rectangle : public Polygon {
     public:
         Rectangle();
         Rectangle(const Rectangle& other);
-        Rectangle(const Point& top_left, const Point& bottom_right);
+        Rectangle(const Point& corner1, const Point& corner2);
         Rectangle(const Point& center, double width, double height);
 
         bool contains(const Point& point) const;
+        bool contains(const Rectangle& other) const;
+
+        bool operator==(const Rectangle& other) const;
+        bool operator!=(const Rectangle& other) const;
 };
 
 #endif // RRT_STAR_POLY_HPP_
