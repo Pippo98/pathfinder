@@ -2,6 +2,10 @@
 
 #include <cmath>
 
+static inline bool is_zero(double value) {
+    return std::abs(value) < 10.0*std::numeric_limits<double>::epsilon();
+}
+
 Point::Point() : m_x(0.0), m_y(0.0) {}
 Point::Point(double x, double y) : m_x(x), m_y(y) {}
 Point::Point(const Point& other) : m_x(other.x()), m_y(other.y()) {}
@@ -27,7 +31,7 @@ double Point::distance(const Point& other) const {
 }
 
 bool Point::operator==(const Point& other) const {
-    return (m_x == other.x() && m_y == other.y());
+    return is_zero(m_x - other.x()) && is_zero(m_y - other.y());
 }
 bool Point::operator!=(const Point& other) const {
     return !(*this == other);
