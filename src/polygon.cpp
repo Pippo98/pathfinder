@@ -6,6 +6,17 @@ Polygon::Polygon() : std::vector<Point>() {}
 Polygon::Polygon(const Polygon& other) : std::vector<Point>(other) {}
 Polygon::Polygon(const std::vector<Point>& points) : std::vector<Point>(points) {}
 
+bool Polygon::contains(const Point& point) const {
+    bool result = false;
+    for (int i = 0, j = this->size() - 1; i < this->size(); j = i++) {
+        if (((this->at(i).y() > point.y()) != (this->at(j).y() > point.y())) &&
+            (point.x() < (this->at(j).x() - this->at(i).x()) * (point.y() - this->at(i).y()) / (this->at(j).y() - this->at(i).y()) + this->at(i).x())) {
+            result = !result;
+        }
+    }
+    return result;
+}
+
 Rectangle::Rectangle() : Polygon() {
     this->push_back(Point());
     this->push_back(Point());

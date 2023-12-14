@@ -29,5 +29,12 @@ int main(void) {
     std::cout << "p5 == p5 + epsilon: " << (p1 == p5 + Point(std::numeric_limits<double>::epsilon())) << std::endl;
     std::cout << "p5 == p5 + epsilon: " << (p1 == p5 + Point(std::numeric_limits<double>::epsilon())*10) << std::endl;
 
+    Polygon poly;
+    poly.push_back(Point(0.0, 0.0));
+    poly.push_back(Point(1.1, 1.1));
+    poly.push_back(Point(1.0, 0.0));
+    poly.push_back(Point(0.0, 1.0));
+    std::cout << "poly contains p1: " << poly.contains(p1) << std::endl;
+
     return 0;
 }

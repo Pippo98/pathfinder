@@ -11,6 +11,9 @@ add_library(
 
     src/point.cpp
     src/polygon.cpp
+    
+    src/tree.cpp
+    src/tree_node.cpp
 )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
@@ -20,3 +23,9 @@ add_executable(
     tests/test_1.cpp
 )
 target_link_libraries(${PROJECT_NAME}Test1 ${PROJECT_NAME})
+
+add_executable(
+    ${PROJECT_NAME}Test2
+    tests/test_2.cpp
+)
+target_link_libraries(${PROJECT_NAME}Test2 ${PROJECT_NAME})

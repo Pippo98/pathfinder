@@ -13,7 +13,7 @@ class Polygon : public std::vector<Point> {
         Polygon(const Polygon& other);
         Polygon(const std::vector<Point>& points);
 
-        virtual bool contains(const Point& point) const = 0;
+        virtual bool contains(const Point& point) const;
 };
 
 class Rectangle : public Polygon {
