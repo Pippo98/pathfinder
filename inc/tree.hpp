@@ -6,34 +6,34 @@
 #include <vector>
 
 class Tree {
-    public:
-        Tree();
-        Tree(const Point& root);
+public:
+	Tree();
+	Tree(const Point &root);
 
-        Node* root() const;
-        std::vector<Node*> nodes() const;
+	Node *root() const;
+	std::vector<Node *> nodes() const;
 
-        Tree& set_root(const Point& root);
-        Tree& add_node(Node* node);
+	Tree &set_root(const Point &root);
+	Tree &add_node(Node *node);
 
-        bool operator==(const Tree& other) const;
-        bool operator!=(const Tree& other) const;
+	bool operator==(const Tree &other) const;
+	bool operator!=(const Tree &other) const;
 
-        Node* get_node(const Node& node) const;
+	Node *get_node(const Node &node) const;
 
-        Tree& remove_node(const Node& node);
+	Tree &remove_node(const Node &node);
 
-        bool is_empty() const;
+	bool is_empty() const;
 
-        std::vector<const Node*> path_to_root(const Node& node) const;
-        std::vector<const Node*> get_leaves() const;
+	std::vector<const Node *> get_leaves() const;
+	std::vector<Node> path_to_root(const Node &node) const;
+	std::vector<const Node *> path_to_root_ptr(const Node &node) const;
 
-        friend std::ostream& operator<<(std::ostream& os, const Tree& tree);
+	friend std::ostream &operator<<(std::ostream &os, const Tree &tree);
 
-    private:
-        Node* m_root;
-        std::vector<Node*> m_nodes;
+private:
+	Node *m_root;
+	std::vector<Node *> m_nodes;
 };
-
 
 #endif // RRT_STAR_TREE_HPP_

@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.15)
 project(RRTStar)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_CXX_FLAGS "-O0 -g")
 
 include_directories(${CMAKE_CURRENT_LIST_DIR})
 
@@ -29,3 +32,9 @@ add_executable(
     tests/test_2.cpp
 )
 target_link_libraries(${PROJECT_NAME}Test2 ${PROJECT_NAME})
+
+add_executable(
+    ${PROJECT_NAME}Test3
+    tests/test_3.cpp
+)
+target_link_libraries(${PROJECT_NAME}Test3 ${PROJECT_NAME})
