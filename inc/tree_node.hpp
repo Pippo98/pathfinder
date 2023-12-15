@@ -11,6 +11,7 @@ public:
 	Node(const Point &point, Node *parent);
 
 	Point point() const;
+	const Point &point_ref() const;
 	Node *parent() const;
 	std::vector<Node *> children() const;
 

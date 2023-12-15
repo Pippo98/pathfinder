@@ -14,11 +14,11 @@ public:
 	double goal_radius;
 	int max_iterations;
 
-	std::function<bool(const Point &, const Point &)> validate_new_sample;
+	std::function<bool(const Point &parent, const Point &child, const Point &new_sample)> validate_new_sample;
 
 	RRTConfig()
 			: step_size(0.1), goal_radius(0.1), max_iterations(1000),
-				validate_new_sample([](const Point &a, const Point &b) { return true; }) {}
+				validate_new_sample([](const Point &a, const Point &b, const Point &c) { return true; }) {}
 };
 
 class RRTStar {
@@ -41,7 +41,9 @@ private:
 	Tree m_tree;
 
 	Point m_sample();
-	Point m_nearest(const Point &sample);
+	Node &m_nearest_node(const Point &sample);
+	Point m_nearest_point(const Point &sample);
+	std::vector<Node *> m_near(const Point &sample, double radius);
 };
 
 #endif // RRT_STAR_HPP_

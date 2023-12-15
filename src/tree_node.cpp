@@ -36,6 +36,7 @@ Node &Node::remove_parent() {
 }
 
 Point Node::point() const { return this->m_point; }
+const Point &Node::point_ref() const { return this->m_point; }
 Node *Node::parent() const { return this->m_parent; }
 std::vector<Node *> Node::children() const { return this->m_children; }
 

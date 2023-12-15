@@ -14,6 +14,7 @@ public:
 	Polygon(const std::vector<Point> &points);
 
 	virtual bool contains(const Point &point) const;
+	virtual bool intersects(const Point &point1, const Point &point2) const;
 };
 
 class Rectangle : public Polygon {

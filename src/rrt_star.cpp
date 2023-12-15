@@ -22,31 +22,75 @@ bool PointInObstacle(const Point &point, const std::vector<Polygon> &obstacles) 
 	return false;
 }
 
+bool PointIntersectsObstacle(const Point &point1, const Point &point2, const std::vector<Polygon> &obstacles) {
+	for (const Polygon &obstacle : obstacles) {
+		if (obstacle.intersects(point1, point2)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 std::vector<Node> RRTStar::find_path(const Point &start, const Point &goal) {
 	std::vector<Node> path;
 	m_tree = Tree(start);
 
 	for (int i = 0; i < m_config.max_iterations; i++) {
-		Point sample = m_sample();
-		Point nearest = m_nearest(sample);
-		if (PointInObstacle(sample, m_obstacles)) {
-			continue;
+		Point new_point = m_sample();
+		Node &nearest_node = m_nearest_node(new_point);
+		const Point &nearest = nearest_node.point_ref();
+		Point nearest_node_parent_point;
+		if (nearest_node.parent() != nullptr) {
+			nearest_node_parent_point = nearest_node.parent()->point();
 		}
 
-		Point new_point = nearest + (sample - nearest).normalize() * m_config.step_size;
+		if (nearest.distance(new_point) > m_config.step_size) {
+			new_point = nearest + ((new_point - nearest).normalize() * m_config.step_size);
+		}
 		if (PointInObstacle(new_point, m_obstacles)) {
 			continue;
 		}
-
-		if (!m_config.validate_new_sample(nearest, new_point)) {
+		if (PointIntersectsObstacle(nearest, new_point, m_obstacles)) {
+			continue;
+		}
+		if (!m_config.validate_new_sample(nearest_node_parent_point, nearest, new_point)) {
 			continue;
 		}
 
-		Node *new_node = new Node(new_point, m_tree.get_node(Node(nearest, nullptr)));
+		// add RRT* logic here
+		// 1. find all nodes within a radius of new_point
+		// 2. find the node with the lowest cost to reach
+		// 3. if the cost to reach that node + the cost to reach new_point is less than the cost to reach new_point
+		// directly, then rewire the tree
+		// 4. if the cost to reach new_point is less than the cost to reach the goal, then add new_point to the tree
+		// 5. if new_point is within the goal radius, then return the path to the root of the tree
+
+		std::vector<Node *> nears = m_near(new_point, m_config.step_size);
+		Node *min_node = nullptr;
+		double min_cost = std::numeric_limits<double>::max();
+		for (int j = 0; j < nears.size(); j++) {
+			double cost = nears[j]->path_to_root().size() + nears[j]->point_ref().distance(new_point);
+			if (cost < min_cost) {
+				min_node = nears[j];
+				min_cost = cost;
+			}
+		}
+
+		Node *new_node;
+		if (min_node != nullptr) {
+			new_point = min_node->point_ref() + (new_point - min_node->point_ref()).normalize() * m_config.step_size;
+			min_node->add_child(new_point);
+			new_node = min_node->children().back();
+		} else {
+			nearest_node.add_child(new_point);
+			new_node = nearest_node.children().back();
+		}
+
 		m_tree.add_node(new_node);
 
 		if (new_point.distance(goal) < m_config.goal_radius) {
 			path = m_tree.path_to_root(*new_node);
+			std::cout << "found path" << std::endl;
 			break;
 		}
 	}
@@ -59,24 +103,59 @@ Tree RRTStar::tree() const { return m_tree; }
 Point RRTStar::m_sample() {
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::uniform_real_distribution<> dis(-1, 1);
+	std::uniform_real_distribution<> dis(0, 1);
 
-	double x = dis(gen) * m_bounds.width() + m_bounds.center().x();
-	double y = dis(gen) * m_bounds.height() + m_bounds.center().y();
+	double x = dis(gen) * m_bounds.width() + m_bounds.center().x() - m_bounds.width() / 2.0;
+	double y = dis(gen) * m_bounds.height() + m_bounds.center().y() - m_bounds.height() / 2.0;
 
 	return Point(x, y);
 }
-Point RRTStar::m_nearest(const Point &sample) {
-	Point nearest = m_tree.root()->point();
-	double min_distance = sample.distance(nearest);
 
-	for (Node *node : m_tree.nodes()) {
-		double distance = sample.distance(node->point());
-		if (distance < min_distance) {
-			nearest = node->point();
-			min_distance = distance;
+Node *recursive_nearest_node(Node *node, const Point &sample, double &min_distance) {
+	Node *nearest = nullptr;
+	double distance = sample.distance(node->point_ref());
+	if (distance <= min_distance) {
+		nearest = node;
+		min_distance = distance;
+	}
+
+	for (Node *child : node->children()) {
+		Node *child_nearest = recursive_nearest_node(child, sample, min_distance);
+		if (child_nearest != nullptr) {
+			nearest = child_nearest;
 		}
 	}
 
 	return nearest;
+}
+
+Node &RRTStar::m_nearest_node(const Point &sample) {
+	double min_distance = std::numeric_limits<double>::max();
+	Node *nearest = recursive_nearest_node(m_tree.root(), sample, min_distance);
+
+	if (nearest == nullptr) {
+		nearest = m_tree.root();
+	}
+
+	return *nearest;
+}
+Point RRTStar::m_nearest_point(const Point &sample) { return m_nearest_node(sample).point_ref(); }
+
+std::vector<Node *> recursive_nearest_nodes(Node *node, const Point &sample, double radius) {
+	std::vector<Node *> nodes;
+	double distance = sample.distance(node->point_ref());
+	if (distance < radius) {
+		nodes.push_back(node);
+	}
+
+	for (Node *child : node->children()) {
+		std::vector<Node *> child_nearest_nodes = recursive_nearest_nodes(child, sample, radius);
+		nodes.insert(nodes.end(), child_nearest_nodes.begin(), child_nearest_nodes.end());
+	}
+
+	return nodes;
+}
+
+std::vector<Node *> RRTStar::m_near(const Point &sample, double radius) {
+	return recursive_nearest_nodes(m_tree.root(), sample, radius);
 }

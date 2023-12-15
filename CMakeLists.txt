@@ -4,7 +4,7 @@ project(RRTStar)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_FLAGS "-O0 -g")
+set(CMAKE_CXX_FLAGS "-O3 -g")
 
 include_directories(${CMAKE_CURRENT_LIST_DIR})
 
