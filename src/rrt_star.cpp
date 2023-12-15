@@ -57,14 +57,6 @@ std::vector<Node> RRTStar::find_path(const Point &start, const Point &goal) {
 			continue;
 		}
 
-		// add RRT* logic here
-		// 1. find all nodes within a radius of new_point
-		// 2. find the node with the lowest cost to reach
-		// 3. if the cost to reach that node + the cost to reach new_point is less than the cost to reach new_point
-		// directly, then rewire the tree
-		// 4. if the cost to reach new_point is less than the cost to reach the goal, then add new_point to the tree
-		// 5. if new_point is within the goal radius, then return the path to the root of the tree
-
 		std::vector<Node *> nears = m_near(new_point, m_config.step_size);
 		Node *min_node = nullptr;
 		double min_cost = std::numeric_limits<double>::max();
@@ -94,6 +86,8 @@ std::vector<Node> RRTStar::find_path(const Point &start, const Point &goal) {
 			break;
 		}
 	}
+
+	std::reverse(path.begin(), path.end());
 
 	return path;
 }
