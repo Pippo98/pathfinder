@@ -79,9 +79,6 @@ std::vector<Point> AStar::find_path(const Point &start, const Point &goal) {
 		}
 	}
 
-	std::cout << new_samples << ", " << skipped_nodes << std::endl;
-	std::cout << "finished at iteration: " << iteration << std::endl;
-
 	std::vector<Point> path;
 	while (goal_node != nullptr) {
 		path.push_back(goal_node->p);
@@ -89,15 +86,15 @@ std::vector<Point> AStar::find_path(const Point &start, const Point &goal) {
 			break;
 		goal_node = goal_node->parent;
 	}
+	std::reverse(path.begin(), path.end());
+
 	for (auto &rows : m_known_nodes) {
 		for (auto &columns : rows.second) {
 			delete columns.second;
 		}
 	}
 	m_known_nodes.clear();
-
-	std::reverse(path.begin(), path.end());
-
+	
 	return path;
 }
 
