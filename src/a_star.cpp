@@ -15,7 +15,7 @@ struct compare_nodes {
 	bool operator()(const AStarNode *a, const AStarNode *b) { return a->f() > b->f(); }
 };
 
-std::vector<AStarNode *> AStar::find_path(const Point &start, const Point &goal) {
+std::vector<Point> AStar::find_path(const Point &start, const Point &goal) {
 	std::unordered_set<AStarNode *> closed_set;
 	std::unordered_set<AStarNode *> open_set_lookup;
 	m_goal = goal;
@@ -82,13 +82,19 @@ std::vector<AStarNode *> AStar::find_path(const Point &start, const Point &goal)
 	std::cout << new_samples << ", " << skipped_nodes << std::endl;
 	std::cout << "finished at iteration: " << iteration << std::endl;
 
-	std::vector<AStarNode *> path;
+	std::vector<Point> path;
 	while (goal_node != nullptr) {
-		path.push_back(goal_node);
+		path.push_back(goal_node->p);
 		if (goal_node->parent == nullptr)
 			break;
 		goal_node = goal_node->parent;
 	}
+	for (auto &rows : m_known_nodes) {
+		for (auto &columns : rows.second) {
+			delete columns.second;
+		}
+	}
+	m_known_nodes.clear();
 
 	std::reverse(path.begin(), path.end());
 

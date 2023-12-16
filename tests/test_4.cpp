@@ -31,13 +31,13 @@ int main(void) {
     a_star.set_obstacles(obstacles);
     a_star.set_config(config);
 
-    std::vector<AStarNode *> path = a_star.find_path(Point(0, 0), Point(100, 100));
+    std::vector<Point> path = a_star.find_path(Point(0, 0), Point(100, 100));
 
     std::ofstream f_path;
     f_path.open("path.csv");
     f_path << "x,y" << std::endl;
-    for (AStarNode *node : path) {
-        f_path << node->p.x() << "," << node->p.y() << std::endl;
+    for (const Point &point : path) {
+        f_path << point.x() << "," << point.y() << std::endl;
     }
     f_path.close();
 

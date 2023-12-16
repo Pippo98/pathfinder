@@ -50,7 +50,7 @@ public:
 	void set_bounds(const Rectangle &bounds);
 	void set_obstacles(const std::vector<Polygon> &obstacles);
 
-	std::vector<AStarNode *> find_path(const Point &start, const Point &goal);
+	std::vector<Point> find_path(const Point &start, const Point &goal);
 
 private:
 	Rectangle m_bounds;
