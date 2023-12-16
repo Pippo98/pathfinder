@@ -6,7 +6,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_FLAGS "-O3 -g")
 
-include_directories(${CMAKE_CURRENT_LIST_DIR})
+include_directories(
+    ${CMAKE_CURRENT_LIST_DIR}
+)
 
 add_library(
     ${PROJECT_NAME}
@@ -18,6 +20,7 @@ add_library(
     src/tree.cpp
     src/tree_node.cpp
 )
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
 
