@@ -29,6 +29,8 @@ def get_obstacles(f):
         y.append(float(line[1]))
     return obstacles
 
+
+plt.figure(figsize=(10, 10))
 x, y = get_data(open('path.csv', 'r'))
 t_x, t_y = get_data(open('tree.csv', 'r'))
 obstacles = get_obstacles(open('obstacles.csv', 'r'))

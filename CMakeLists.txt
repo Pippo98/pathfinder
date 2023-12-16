@@ -12,6 +12,7 @@ include_directories(
 
 add_library(
     ${PROJECT_NAME}
+    src/a_star.cpp
     src/rrt_star.cpp
 
     src/point.cpp
@@ -41,3 +42,9 @@ add_executable(
     tests/test_3.cpp
 )
 target_link_libraries(${PROJECT_NAME}Test3 ${PROJECT_NAME})
+
+add_executable(
+    AStarTest1
+    tests/test_4.cpp
+)
+target_link_libraries(AStarTest1 ${PROJECT_NAME})
