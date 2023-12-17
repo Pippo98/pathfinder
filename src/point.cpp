@@ -34,6 +34,11 @@ Point &Point::normalize() {
 	return *this;
 }
 
+Point &Point::operator=(const Point &other) {
+	m_x = other.x();
+	m_y = other.y();
+	return *this;
+}
 bool Point::operator==(const Point &other) const { return is_zero(m_x - other.x()) && is_zero(m_y - other.y()); }
 bool Point::operator!=(const Point &other) const { return !(*this == other); }
 Point Point::operator+(const Point &other) const { return Point(m_x + other.x(), m_y + other.y()); }

@@ -28,12 +28,11 @@ public:
 
 	bool operator==(const AStarNode &other) const { return p == other.p; }
 };
-static bool node_comparator(AStarNode *left, AStarNode *right) { return left->f() < right->f(); }
 
 class AStarConfig {
 public:
 	double step_size;
-	int max_iterations;
+	size_t max_iterations;
 
 	std::function<double(const AStarNode *come_from, const Point &new_sample, const Point &goal)> g;
 	std::function<double(const AStarNode *come_from, const Point &new_sample, const Point &goal)> h;

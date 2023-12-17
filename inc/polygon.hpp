@@ -13,6 +13,7 @@ public:
 	Polygon(const Polygon &other);
 	Polygon(const std::vector<Point> &points);
 
+	Polygon &operator=(const Polygon &other) = default;
 	virtual bool contains(const Point &point) const;
 	virtual bool intersects(const Point &point1, const Point &point2) const;
 };
@@ -31,6 +32,7 @@ public:
 	double width() const;
 	double height() const;
 
+	Rectangle &operator=(const Rectangle &other) = default;
 	bool operator==(const Rectangle &other) const;
 	bool operator!=(const Rectangle &other) const;
 };

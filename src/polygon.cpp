@@ -8,7 +8,7 @@ Polygon::Polygon(const std::vector<Point> &points) : std::vector<Point>(points) 
 
 bool Polygon::contains(const Point &point) const {
 	bool result = false;
-	for (int i = 0, j = this->size() - 1; i < this->size(); j = i++) {
+	for (size_t i = 0, j = this->size() - 1; i < this->size(); j = i++) {
 		if (((this->at(i).y() > point.y()) != (this->at(j).y() > point.y())) &&
 				(point.x() <
 				 (this->at(j).x() - this->at(i).x()) * (point.y() - this->at(i).y()) / (this->at(j).y() - this->at(i).y()) +
@@ -19,7 +19,7 @@ bool Polygon::contains(const Point &point) const {
 	return result;
 }
 bool Polygon::intersects(const Point &point1, const Point &point2) const {
-	for (int i = 0, j = this->size() - 1; i < this->size(); j = i++) {
+	for (size_t i = 0, j = this->size() - 1; i < this->size(); j = i++) {
 		if (this->at(i) == point1 || this->at(i) == point2 || this->at(j) == point1 || this->at(j) == point2) {
 			continue;
 		}

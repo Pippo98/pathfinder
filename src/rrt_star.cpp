@@ -60,7 +60,7 @@ std::vector<Node> RRTStar::find_path(const Point &start, const Point &goal) {
 		std::vector<Node *> nears = m_near(new_point, m_config.step_size);
 		Node *min_node = nullptr;
 		double min_cost = std::numeric_limits<double>::max();
-		for (int j = 0; j < nears.size(); j++) {
+		for (size_t j = 0; j < nears.size(); j++) {
 			double cost = nears[j]->path_to_root().size() + nears[j]->point_ref().distance(new_point);
 			if (cost < min_cost) {
 				min_node = nears[j];
