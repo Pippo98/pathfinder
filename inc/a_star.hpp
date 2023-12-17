@@ -15,6 +15,7 @@ public:
 	auto end() { return this->c.end(); }
 	auto cbegin() const { return this->c.cbegin(); }
 	auto cend() const { return this->c.cend(); }
+	void make_heap() { std::make_heap(this->c.begin(), this->c.end(), this->comp); }
 };
 
 class AStarNode {

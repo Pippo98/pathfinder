@@ -28,6 +28,7 @@ std::vector<Point> AStar::find_path(const Point &start, const Point &goal) {
 	AStarPQueue<AStarNode *, std::vector<AStarNode *>, compare_nodes> open_set;
 
 	open_set.push(&start_node);
+	open_set_lookup.insert(&start_node);
 
 	size_t iteration = 0;
 	AStarNode *goal_node = nullptr;
@@ -74,6 +75,8 @@ std::vector<Point> AStar::find_path(const Point &start, const Point &goal) {
 				if (!is_in_fronteer) {
 					open_set.push(node);
 					open_set_lookup.insert(node);
+				} else {
+					open_set.make_heap();
 				}
 			}
 		}
