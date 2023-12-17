@@ -1,5 +1,5 @@
-#ifndef RRT_STAR_TREE_NODE_HPP_
-#define RRT_STAR_TREE_NODE_HPP_
+#ifndef PATHFINDER_TREE_NODE_HPP_
+#define PATHFINDER_TREE_NODE_HPP_
 
 #include "inc/point.hpp"
 
@@ -47,4 +47,4 @@ private:
 	std::vector<Node *> m_children;
 };
 
-#endif // RRT_STAR_TREE_NODE_HPP_
+#endif // PATHFINDER_TREE_NODE_HPP_

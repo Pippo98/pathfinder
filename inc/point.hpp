@@ -1,5 +1,5 @@
-#ifndef RRT_STAR_POINT_HPP_
-#define RRT_STAR_POINT_HPP_
+#ifndef PATHFINDER_POINT_HPP_
+#define PATHFINDER_POINT_HPP_
 
 #include <iostream>
 
@@ -41,4 +41,4 @@ private:
 	double m_y;
 };
 
-#endif // RRT_STAR_POINT_HPP_
+#endif // PATHFINDER_POINT_HPP_

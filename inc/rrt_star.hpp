@@ -1,5 +1,5 @@
-#ifndef RRT_STAR_HPP_
-#define RRT_STAR_HPP_
+#ifndef PATHFINDER_RRT_STAR_HPP_
+#define PATHFINDER_RRT_STAR_HPP_
 
 #include "inc/tree.hpp"
 #include "inc/point.hpp"
@@ -46,4 +46,4 @@ private:
 	std::vector<Node *> m_near(const Point &sample, double radius);
 };
 
-#endif // RRT_STAR_HPP_
+#endif // PATHFINDER_RRT_STAR_HPP_

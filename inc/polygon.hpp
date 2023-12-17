@@ -1,5 +1,5 @@
-#ifndef RRT_STAR_POLY_HPP_
-#define RRT_STAR_POLY_HPP_
+#ifndef PATHFINDER_POLY_HPP_
+#define PATHFINDER_POLY_HPP_
 
 #include <vector>
 #include "inc/point.hpp"
@@ -35,4 +35,4 @@ public:
 	bool operator!=(const Rectangle &other) const;
 };
 
-#endif // RRT_STAR_POLY_HPP_
+#endif // PATHFINDER_POLY_HPP_

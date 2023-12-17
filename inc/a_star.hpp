@@ -1,5 +1,5 @@
-#ifndef A_STAR_HPP_
-#define A_STAR_HPP_
+#ifndef PATHFINDER_A_STAR_HPP_
+#define PATHFINDER_A_STAR_HPP_
 
 #include "inc/point.hpp"
 #include "inc/polygon.hpp"
@@ -76,4 +76,4 @@ private:
 	AStarNode *m_node_is_known(const AStarNode *node);
 };
 
-#endif // A_STAR_HPP_
+#endif // PATHFINDER_A_STAR_HPP_
