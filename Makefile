@@ -1,7 +1,7 @@
 MAKEFLAGS += --no-print-directory
 BUILD_DIR = build
 BIN_DIR = bin
-.PHONY: build run format
+.PHONY: build run format debug release setup
 
 bf: build format
 
