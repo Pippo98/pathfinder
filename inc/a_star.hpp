@@ -57,6 +57,10 @@ public:
 
 	std::vector<Point> find_path(const Point &start, const Point &goal);
 
+	const Rectangle &bounds() const { return m_bounds; }
+	const std::vector<Polygon> &obstacles() const { return m_obstacles; }
+	const AStarConfig &config() const { return m_config; }
+
 private:
 	Rectangle m_bounds;
 	std::vector<Polygon> m_obstacles;
