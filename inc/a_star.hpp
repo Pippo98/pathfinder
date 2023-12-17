@@ -33,14 +33,19 @@ static bool node_comparator(AStarNode *left, AStarNode *right) { return left->f(
 class AStarConfig {
 public:
 	double step_size;
-	double goal_radius;
 	int max_iterations;
 
-	std::function<bool(const AStarNode *node, const Point &new_sample)> validate_new_sample;
+	std::function<double(const AStarNode *come_from, const Point &new_sample, const Point &goal)> g;
+	std::function<double(const AStarNode *come_from, const Point &new_sample, const Point &goal)> h;
 
 	AStarConfig()
-			: step_size(0.1), goal_radius(0.1), max_iterations(1000),
-				validate_new_sample([](const AStarNode *node, const Point &c) { return true; }) {}
+			: step_size(0.1), max_iterations(1000),
+				g([](const AStarNode *come_from, const Point &new_sample, const Point &goal) {
+					return come_from->g + come_from->p.distance(new_sample);
+				}),
+				h([](const AStarNode *come_from, const Point &new_sample, const Point &goal) {
+					return goal.distance(new_sample);
+				}) {}
 };
 
 class AStar {

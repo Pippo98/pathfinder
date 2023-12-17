@@ -8,9 +8,14 @@ int main(void) {
 
     AStar a_star;
     AStarConfig config;
-    config.goal_radius = 10;
     config.step_size = 0.6;
     config.max_iterations = 15000;
+    config.g = [](const AStarNode *come_from, const Point &new_sample, const Point &goal) {
+        return come_from->g + come_from->p.distance(new_sample);
+    };
+    config.h = [](const AStarNode *come_from, const Point &new_sample, const Point &goal) {
+        return goal.distance(new_sample);
+    };
 
     auto obstacles = std::vector<Polygon>({
         Rectangle(Point(20, 20), Point(40, 40)),

@@ -32,16 +32,13 @@ std::vector<Point> AStar::find_path(const Point &start, const Point &goal) {
 
 	size_t iteration = 0;
 	AStarNode *goal_node = nullptr;
-
-	int new_samples = 0;
-	int skipped_nodes = 0;
 	while (!open_set.empty() && iteration < m_config.max_iterations) {
 		iteration++;
 		auto current = open_set.top();
 		open_set.pop();
 
 		closed_set.insert(current);
-		if (current->p.distance(goal) <= m_config.goal_radius) {
+		if (current->p.distance(goal) < m_config.step_size) {
 			goal_node = current;
 			break;
 		}
@@ -49,12 +46,10 @@ std::vector<Point> AStar::find_path(const Point &start, const Point &goal) {
 		// update frontier
 		auto new_nodes = m_sample_around(current);
 		for (int i = 0; i < 8; i++) {
-			new_samples++;
 			AStarNode *node = new_nodes[i];
 
 			// if the point was in a obstacle or outside boundaries
 			if (node == nullptr) {
-				skipped_nodes++;
 				continue;
 			}
 
@@ -63,14 +58,14 @@ std::vector<Point> AStar::find_path(const Point &start, const Point &goal) {
 				continue;
 			}
 
-			double new_g = current->g + current->p.distance(node->p);
+			double new_g = m_config.g(current, node->p, goal);
 
-			bool is_in_fronteer = open_set_lookup.find(node) != open_set_lookup.end();
+			bool is_in_fronteer = (open_set_lookup.find(node) != open_set_lookup.end());
 
 			if (new_g < node->g || !is_in_fronteer) {
 				node->parent = current;
 				node->g = new_g;
-				node->h = goal.distance(node->p);
+				node->h = m_config.h(current, node->p, goal);
 
 				if (!is_in_fronteer) {
 					open_set.push(node);
@@ -97,7 +92,7 @@ std::vector<Point> AStar::find_path(const Point &start, const Point &goal) {
 		}
 	}
 	m_known_nodes.clear();
-	
+
 	return path;
 }
 
@@ -118,7 +113,6 @@ AStarNode *AStar::m_node_is_known(const AStarNode *node) {
 }
 
 AStarNode *AStar::m_get_or_sample_pos(AStarNode *node, const Point &offset) {
-
 	AStarNode tmp_node = *node;
 	tmp_node.p = tmp_node.p + offset;
 	AStarNode *new_node = m_node_is_known(&tmp_node);
@@ -136,10 +130,10 @@ AStarNode *AStar::m_get_or_sample_pos(AStarNode *node, const Point &offset) {
 	}
 
 	new_node = new AStarNode();
-	new_node->p = node->p + offset;
-	new_node->g = node->g + node->p.distance(new_node->p);
-	new_node->h = m_goal.distance(new_node->p);
 	new_node->parent = node;
+	new_node->p = node->p + offset;
+	new_node->g = m_config.g(node, new_node->p, m_goal);
+	new_node->h = m_config.h(node, new_node->p, m_goal);
 	m_new_known_node(new_node);
 
 	return new_node;
