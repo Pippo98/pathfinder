@@ -75,6 +75,7 @@ std::vector<Point> AStar::find_path(const Point &start, const Point &goal) {
 				}
 			}
 		}
+		delete[] new_nodes;
 	}
 
 	std::vector<Point> path;
