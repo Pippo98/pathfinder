@@ -19,7 +19,6 @@ add_library(
     ${PROJECT_NAME}
     src/a_star.cpp
     src/rrt_star.cpp
-    src/_rrt_star.cpp
 
     src/point.cpp
     src/polygon.cpp
@@ -41,6 +40,7 @@ if(BUILD_EXAMPLES)
     add_executable(
        ${PROJECT_NAME}Test1_
         tests/test_1_.cpp
+        src/_rrt_star.cpp
     )
     target_link_libraries(${PROJECT_NAME}Test1_ ${PROJECT_NAME})
 

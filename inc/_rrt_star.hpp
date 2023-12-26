@@ -6,6 +6,7 @@
 
 #include <inttypes.h>
 #include <unordered_set>
+#include <functional>
 
 class RRTStarNode {
 public:
@@ -21,17 +22,20 @@ public:
 	RRTStarNode *addChild();
 	RRTStarNode *addChild(const Point &p);
 
+	double g();
 	Point &p();
 	uint64_t steps_to_root();
 
 	void setPoint(const Point &p);
+	void setParent(RRTStarNode *parent);
 
 private:
-	RRTStarNode *parent;
-	std::unordered_set<RRTStarNode *> children;
+	RRTStarNode *m_parent;
+	std::unordered_set<RRTStarNode *> m_children;
 
-	uint64_t g;
-	Point point;
+	uint64_t m_steps_to_root;
+	Point m_point;
+	double m_g;
 
 private:
 	static void removeNode(RRTStarNode *node);
@@ -42,6 +46,13 @@ public:
 	friend class RRTStar;
 	RRTStarTree();
 	RRTStarTree(const Point &p);
+	RRTStarTree(RRTStarNode *root);
+
+	RRTStarNode *getRoot() { return root; };
+
+	static std::vector<Point> getPointsToRoot(RRTStarNode *from);
+	static std::vector<RRTStarNode *> getNodesToRoot(RRTStarNode *from);
+	static void recursiveIterator(RRTStarNode *node, std::function<void(RRTStarNode *node)> callback);
 
 private:
 	RRTStarNode *root;
@@ -63,11 +74,12 @@ public:
 	void setBounds(const Rectangle &bounds);
 	void setObstacles(const std::vector<Polygon> &obstacles);
 
-	std::vector<Point> findPath(const Point &start, const Point &goal);
+	RRTStarNode *findPath(const Point &start, const Point &goal);
 
 	const Rectangle &bounds() const { return m_bounds; }
 	const std::vector<Polygon> &obstacles() const { return m_obstacles; }
 	const RRTStarConfig &config() const { return m_config; }
+	RRTStarTree tree() { return m_tree; };
 
 private:
 	Rectangle m_bounds;
@@ -82,6 +94,7 @@ private:
 private:
 	RRTStarNode *closestNode(const Point &p);
 	std::vector<RRTStarNode *> closeNodes(const Point &p, double radius);
+	Point sample();
 };
 
 #endif // _RRT_STAR_HPP

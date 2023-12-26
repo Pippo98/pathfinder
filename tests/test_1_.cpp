@@ -1,12 +1,62 @@
 #include "inc/_rrt_star.hpp"
 
+#include <fstream>
+#include <iostream>
+
 int main(void) {
+  
+  RRTStar rrt_star;
+  RRTStarConfig rrt_star_config;
 
-  RRTStarNode root;
-  auto *cc = root.addChild()->addChild();
+  auto obstacles = std::vector<Polygon>({
+      Rectangle(Point(20, 20), Point(40, 40)),
+      Rectangle(Point(80, 80), Point(90, 90)),
+      Rectangle(Point(20, 40), Point(60, 55)),
+      Rectangle(Point(80, 100), Point(90, 20)),
+      Polygon({
+          Point(20, 20),
+          Point(30, 20),
+          Point(35, 30),
+          Point(30, 40),
+          Point(20, 40),
+          Point(15, 30)
+      })
+  });
+  rrt_star_config.step_size = 0.5;
+  rrt_star_config.max_iterations = 5000;
 
-  printf("root g: %lu\n", root.steps_to_root());
-  printf("cc g: %lu\n", cc->steps_to_root());
+  rrt_star.setObstacles(obstacles);
+  rrt_star.setConfig(rrt_star_config);
+  rrt_star.setBounds(Rectangle(Point(0, 0), Point(100, 100)));
+
+  RRTStarNode *goal_node = rrt_star.findPath(Point(0,0), Point(100, 100));
+  auto path = RRTStarTree::getPointsToRoot(goal_node);
+
+  std::ofstream f_path;
+  f_path.open("path.csv");
+  f_path << "x,y" << std::endl;
+  for (const Point &point : path) {
+      f_path << point.x() << "," << point.y() << std::endl;
+  }
+  f_path.close();
+
+  std::ofstream f_tree;
+  f_tree.open("tree.csv");
+  f_tree << "x,y" << std::endl;
+  RRTStarTree::recursiveIterator(rrt_star.tree().getRoot(), [&f_tree](RRTStarNode *node){
+      f_tree << node->p().x() << "," << node->p().y() << std::endl;
+  });
+
+  std::ofstream f_obstacles;
+  f_obstacles.open("obstacles.csv");
+  for (Polygon obstacle : obstacles) {
+      for (Point point : obstacle) {
+          f_obstacles << point.x() << "," << point.y() << std::endl;
+      }
+      f_obstacles << obstacle[0].x() << "," << obstacle[0].y() << std::endl;
+      f_obstacles << std::endl;
+  }
+  f_obstacles.close();
 
   return EXIT_SUCCESS;
 }
