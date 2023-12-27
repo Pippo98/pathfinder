@@ -1,10 +1,15 @@
 #include "inc/_rrt_star.hpp"
 
+#include <chrono>
 #include <fstream>
 #include <iostream>
 
 int main(void) {
   
+  typedef std::chrono::high_resolution_clock clock;
+  typedef std::chrono::milliseconds ms;
+  typedef std::chrono::duration<float> fsec;
+
   RRTStar rrt_star;
   RRTStarConfig rrt_star_config;
 
@@ -23,14 +28,17 @@ int main(void) {
       })
   });
   rrt_star_config.step_size = 0.5;
-  rrt_star_config.max_iterations = 5000;
+  rrt_star_config.max_iterations = 15000;
 
   rrt_star.setObstacles(obstacles);
   rrt_star.setConfig(rrt_star_config);
-  rrt_star.setBounds(Rectangle(Point(0, 0), Point(100, 100)));
+  rrt_star.setBounds(Rectangle(Point(0, 0), Point(120, 120)));
 
-  RRTStarNode *goal_node = rrt_star.findPath(Point(0,0), Point(100, 100));
-  auto path = RRTStarTree::getPointsToRoot(goal_node);
+  auto t0 = clock::now();
+  auto path = rrt_star.findPath(Point(0,0), Point(100, 100));
+  auto t1 = clock::now();
+  ms delta = std::chrono::duration_cast<ms>(t1 - t0);
+  printf("Search duration: %lu\n", delta.count());
 
   std::ofstream f_path;
   f_path.open("path.csv");

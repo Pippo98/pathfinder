@@ -1,10 +1,15 @@
 #include "inc/a_star.hpp"
 
 #include <cmath>
+#include <chrono>
 #include <fstream>
 #include <iostream>
 
 int main(void) {
+
+    typedef std::chrono::high_resolution_clock clock;
+    typedef std::chrono::milliseconds ms;
+    typedef std::chrono::duration<float> fsec;
 
     AStar a_star;
     AStarConfig config;
@@ -36,7 +41,11 @@ int main(void) {
     a_star.set_obstacles(obstacles);
     a_star.set_config(config);
 
+    auto t0 = clock::now();
     std::vector<Point> path = a_star.find_path(Point(0, 0), Point(100, 100));
+    auto t1 = clock::now();
+    ms delta = std::chrono::duration_cast<ms>(t1 - t0);
+    printf("Search duration: %lu\n", delta.count());
 
     std::ofstream f_path;
     f_path.open("path.csv");

@@ -119,8 +119,11 @@ bool PointIntersectsObstacle(const Point &point1, const Point &point2, const std
 	return false;
 }
 
-RRTStarNode *RRTStar::findPath(const Point &start, const Point &goal) {
-	m_tree.root->setPoint(start);
+RRTStarNode *RRTStar::findNode(const Point &start, const Point &goal) {
+	freeProblem();
+	m_tree.root = new RRTStarNode(start);
+	m_start = start;
+	m_goal = goal;
 	if (PointInObstacle(goal, m_obstacles)) {
 		return m_tree.root;
 	}
@@ -128,7 +131,7 @@ RRTStarNode *RRTStar::findPath(const Point &start, const Point &goal) {
 	RRTStarNode *goal_node = m_tree.root;
 	double min_dist_to_goal = start.distance(goal);
 	for (int i = 0; i < m_config.max_iterations; i++) {
-		auto new_p = sample();
+		auto new_p = sample(m_config.step_size * 10.0);
 		auto nearest = closestNode(new_p);
 		auto &nearest_p = nearest->p();
 
@@ -139,7 +142,7 @@ RRTStarNode *RRTStar::findPath(const Point &start, const Point &goal) {
 			continue;
 		}
 		RRTStarNode *new_node = nullptr;
-		auto close_nodes = closeNodes(new_p, m_config.step_size * 4.0);
+		auto close_nodes = closeNodes(new_p, m_config.step_size * 3.0);
 		if (close_nodes.size() == 0) {
 			new_node = nearest->addChild(new_p);
 		} else {
@@ -157,6 +160,9 @@ RRTStarNode *RRTStar::findPath(const Point &start, const Point &goal) {
 				if (node == best_node) {
 					continue;
 				}
+				if (PointIntersectsObstacle(new_p, node->p(), m_obstacles)) {
+					continue;
+				}
 				double candidate_g = new_node->g() + new_p.distance(node->p());
 				if (candidate_g < node->g()) {
 					node->setParent(best_node);
@@ -171,6 +177,11 @@ RRTStarNode *RRTStar::findPath(const Point &start, const Point &goal) {
 	}
 	return goal_node;
 }
+
+std::vector<Point> RRTStar::findPath(const Point &start, const Point &goal) {
+	return RRTStarTree::getPointsToRoot(findNode(start, goal));
+}
+void RRTStar::freeProblem() { delete m_tree.root; }
 
 RRTStarNode *RRTStar::closestNode(const Point &p) {
 	RRTStarNode *closest;
@@ -196,7 +207,25 @@ std::vector<RRTStarNode *> RRTStar::closeNodes(const Point &p, double radius) {
 	return nodes;
 }
 
-Point RRTStar::sample() {
+Point RRTStar::sample(double weight_factor) {
+	/*
+	std::random_device rd;
+	std::mt19937 gen(rd());
+
+	double std_dev = std::sqrt(m_bounds.width() * 20);
+
+	double min_x = m_bounds.center().x() - m_bounds.width() / 2.0;
+	double min_y = m_bounds.center().y() - m_bounds.height() / 2.0;
+	double max_x = min_x + m_bounds.width();
+	double max_y = min_y + m_bounds.height();
+
+	std::normal_distribution<double> dist_x(m_goal.x(), std_dev);
+	std::normal_distribution<double> dist_y(m_goal.y(), std_dev);
+
+	double x = std::max(min_x, std::min(dist_x(gen), max_x));
+	double y = std::max(min_y, std::min(dist_y(gen), max_y));
+	*/
+
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_real_distribution<> dis(0, 1);

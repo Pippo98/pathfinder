@@ -1,6 +1,7 @@
 #include "inc/rrt_star.hpp"
 
 #include <cmath>
+#include <chrono>
 #include <stdio.h>
 #include <fstream>
 #include <iostream>
@@ -28,12 +29,17 @@ bool validate_new_sample(const Point &a, const Point &b, const Point &c) {
 }
 
 int main(void) {
+  
+    typedef std::chrono::high_resolution_clock clock;
+    typedef std::chrono::milliseconds ms;
+    typedef std::chrono::duration<float> fsec;
+
 
     RRTStar rrt_star;
     RRTConfig config;
     config.step_size = 0.5;
     config.goal_radius = 10;
-    config.max_iterations = 10000;
+    config.max_iterations = 15000;
     config.validate_new_sample = validate_new_sample;
 
     auto obstacles = std::vector<Polygon>({
@@ -54,8 +60,12 @@ int main(void) {
     rrt_star.set_bounds(Rectangle(Point(0, 0), Point(120, 120)));
     rrt_star.set_obstacles(obstacles);
     rrt_star.set_config(config);
-
+    
+    auto t0 = clock::now();
     std::vector<Node> path = rrt_star.find_path(Point(0, 0), Point(100, 100));
+    auto t1 = clock::now();
+    ms delta = std::chrono::duration_cast<ms>(t1 - t0);
+    printf("Search duration: %ld\n", delta.count());
     
     std::ofstream f_path;
     f_path.open("path.csv");

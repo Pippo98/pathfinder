@@ -74,7 +74,9 @@ public:
 	void setBounds(const Rectangle &bounds);
 	void setObstacles(const std::vector<Polygon> &obstacles);
 
-	RRTStarNode *findPath(const Point &start, const Point &goal);
+	RRTStarNode *findNode(const Point &start, const Point &goal);
+	std::vector<Point> findPath(const Point &start, const Point &goal);
+	void freeProblem();
 
 	const Rectangle &bounds() const { return m_bounds; }
 	const std::vector<Polygon> &obstacles() const { return m_obstacles; }
@@ -94,7 +96,7 @@ private:
 private:
 	RRTStarNode *closestNode(const Point &p);
 	std::vector<RRTStarNode *> closeNodes(const Point &p, double radius);
-	Point sample();
+	Point sample(double weight_factor);
 };
 
 #endif // _RRT_STAR_HPP
