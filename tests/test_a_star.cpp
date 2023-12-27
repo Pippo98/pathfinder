@@ -13,8 +13,8 @@ int main(void) {
 
     AStar a_star;
     AStarConfig config;
-    config.step_size = 0.6;
-    config.max_iterations = 15000;
+    config.step_size = 0.3;
+    config.max_iterations = 100000;
     config.g = [](const AStarNode *come_from, const Point &new_sample, const Point &goal) {
         return come_from->g + come_from->p.distance(new_sample);
     };

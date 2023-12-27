@@ -19,6 +19,7 @@ add_library(
     ${PROJECT_NAME}
     src/a_star.cpp
     src/rrt_star.cpp
+    src/rrt_star2.cpp
 
     src/point.cpp
     src/polygon.cpp
@@ -32,33 +33,20 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
 
 if(BUILD_EXAMPLES)
     add_executable(
-        ${PROJECT_NAME}Test1
-        tests/test_1.cpp
+      ${PROJECT_NAME}RRTStar
+        tests/test_rrt_star.cpp
     )
-    target_link_libraries(${PROJECT_NAME}Test1 ${PROJECT_NAME})
+    target_link_libraries(${PROJECT_NAME}RRTStar ${PROJECT_NAME})
 
     add_executable(
-       ${PROJECT_NAME}Test1_
-        tests/test_1_.cpp
-        src/_rrt_star.cpp
+      ${PROJECT_NAME}RRTStar2
+        tests/test_rrt_star2.cpp
     )
-    target_link_libraries(${PROJECT_NAME}Test1_ ${PROJECT_NAME})
+    target_link_libraries(${PROJECT_NAME}RRTStar2 ${PROJECT_NAME})
 
     add_executable(
-        ${PROJECT_NAME}Test2
-        tests/test_2.cpp
+      ${PROJECT_NAME}AStar
+        tests/test_a_star.cpp
     )
-    target_link_libraries(${PROJECT_NAME}Test2 ${PROJECT_NAME})
-
-    add_executable(
-        ${PROJECT_NAME}Test3
-        tests/test_3.cpp
-    )
-    target_link_libraries(${PROJECT_NAME}Test3 ${PROJECT_NAME})
-
-    add_executable(
-        ${PROJECT_NAME}Test4
-        tests/test_4.cpp
-    )
-    target_link_libraries(${PROJECT_NAME}Test4 ${PROJECT_NAME})
+    target_link_libraries(${PROJECT_NAME}AStar ${PROJECT_NAME})
 endif()

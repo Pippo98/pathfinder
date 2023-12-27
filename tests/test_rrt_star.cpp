@@ -1,4 +1,4 @@
-#include "inc/_rrt_star.hpp"
+#include "inc/rrt_star.hpp"
 
 #include <chrono>
 #include <fstream>
@@ -27,6 +27,8 @@ int main(void) {
           Point(15, 30)
       })
   });
+  rrt_star_config.goal_radius = 10.0;
+  rrt_star_config.smoothen_iterations = 100;
   rrt_star_config.step_size = 0.5;
   rrt_star_config.max_iterations = 15000;
 

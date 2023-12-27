@@ -1,49 +1,104 @@
-#ifndef PATHFINDER_RRT_STAR_HPP_
-#define PATHFINDER_RRT_STAR_HPP_
+#ifndef _RRT_STAR_HPP
+#define _RRT_STAR_HPP
 
-#include "inc/tree.hpp"
 #include "inc/point.hpp"
 #include "inc/polygon.hpp"
 
-#include <vector>
+#include <inttypes.h>
+#include <unordered_set>
 #include <functional>
 
-class RRTConfig {
+class RRTStarNode {
 public:
-	double step_size;
+	friend class RRTStarTree;
+
+	RRTStarNode();
+	RRTStarNode(const Point &p);
+	RRTStarNode(RRTStarNode *parent, const Point &p);
+
+	void remove();
+	void removeChild(RRTStarNode *node);
+
+	RRTStarNode *addChild();
+	RRTStarNode *addChild(const Point &p);
+
+	double g();
+	Point &p();
+	uint64_t steps_to_root();
+
+	void setPoint(const Point &p);
+	void setParent(RRTStarNode *parent);
+
+private:
+	RRTStarNode *m_parent;
+	std::unordered_set<RRTStarNode *> m_children;
+
+	uint64_t m_steps_to_root;
+	Point m_point;
+	double m_g;
+
+private:
+	static void removeNode(RRTStarNode *node);
+};
+
+class RRTStarTree {
+public:
+	friend class RRTStar;
+	RRTStarTree();
+	RRTStarTree(const Point &p);
+	RRTStarTree(RRTStarNode *root);
+
+	RRTStarNode *getRoot() { return root; };
+
+	static std::vector<Point> getPointsToRoot(RRTStarNode *from);
+	static std::vector<RRTStarNode *> getNodesToRoot(RRTStarNode *from);
+	static void recursiveIterator(RRTStarNode *node, std::function<void(RRTStarNode *node)> callback);
+
+private:
+	RRTStarNode *root;
+};
+
+class RRTStarConfig {
+public:
 	double goal_radius;
-	int max_iterations;
+	double step_size;
+	size_t max_iterations;
+	size_t smoothen_iterations;
 
-	std::function<bool(const Point &parent, const Point &child, const Point &new_sample)> validate_new_sample;
-
-	RRTConfig()
-			: step_size(0.1), goal_radius(0.1), max_iterations(1000),
-				validate_new_sample([](const Point &a, const Point &b, const Point &c) { return true; }) {}
+	RRTStarConfig() : goal_radius(10.0), step_size(0.1), max_iterations(1000), smoothen_iterations(200) {}
 };
 
 class RRTStar {
 public:
 	RRTStar();
-	RRTStar(const Rectangle &bounds, const std::vector<Polygon> &obstacles, RRTConfig config);
 
-	void set_bounds(const Rectangle &bounds);
-	void set_obstacles(const std::vector<Polygon> &obstacles);
-	void set_config(RRTConfig config);
+	void setConfig(const RRTStarConfig &config);
+	void setBounds(const Rectangle &bounds);
+	void setObstacles(const std::vector<Polygon> &obstacles);
 
-	std::vector<Node> find_path(const Point &start, const Point &goal);
-	Tree tree() const;
+	RRTStarNode *findNode(const Point &start, const Point &goal);
+	std::vector<Point> findPath(const Point &start, const Point &goal);
+	void freeProblem();
+
+	const Rectangle &bounds() const { return m_bounds; }
+	const std::vector<Polygon> &obstacles() const { return m_obstacles; }
+	const RRTStarConfig &config() const { return m_config; }
+	RRTStarTree tree() { return m_tree; };
 
 private:
 	Rectangle m_bounds;
 	std::vector<Polygon> m_obstacles;
-	RRTConfig m_config;
+	RRTStarConfig m_config;
 
-	Tree m_tree;
+	Point m_start;
+	Point m_goal;
 
-	Point m_sample();
-	Node &m_nearest_node(const Point &sample);
-	Point m_nearest_point(const Point &sample);
-	std::vector<Node *> m_near(const Point &sample, double radius);
+	RRTStarTree m_tree;
+
+private:
+	RRTStarNode *closestNode(const Point &p);
+	std::vector<RRTStarNode *> closeNodes(const Point &p, double radius);
+	Point sample(double weight_factor);
 };
 
-#endif // PATHFINDER_RRT_STAR_HPP_
+#endif // _RRT_STAR_HPP

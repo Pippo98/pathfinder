@@ -1,4 +1,4 @@
-#include "inc/rrt_star.hpp"
+#include "inc/rrt_star2.hpp"
 
 #include <cmath>
 #include <chrono>
@@ -35,7 +35,7 @@ int main(void) {
     typedef std::chrono::duration<float> fsec;
 
 
-    RRTStar rrt_star;
+    RRTStar2 rrt_star;
     RRTConfig config;
     config.step_size = 0.5;
     config.goal_radius = 10;
