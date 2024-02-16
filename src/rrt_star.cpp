@@ -125,10 +125,11 @@ RRTStarNode *RRTStar::findNode(const Point &start, const Point &goal) {
 	m_start = start;
 	m_goal = goal;
 	if (PointInObstacle(goal, m_obstacles)) {
-		return m_tree.root;
+		return nullptr;
 	}
 
-	RRTStarNode *goal_node = m_tree.root;
+	bool updated_iterations = false;
+	RRTStarNode *goal_node = nullptr;
 	double min_dist_to_goal = start.distance(goal);
 	size_t last_iteration = m_config.max_iterations;
 	for (int i = 0; i < last_iteration; i++) {
@@ -175,7 +176,8 @@ RRTStarNode *RRTStar::findNode(const Point &start, const Point &goal) {
 			min_dist_to_goal = dist_to_goal;
 			goal_node = new_node;
 		}
-		if (dist_to_goal < m_config.goal_radius) {
+		if (!updated_iterations && dist_to_goal < m_config.goal_radius) {
+			updated_iterations = true;
 			last_iteration = i + m_config.smoothen_iterations;
 		}
 	}
@@ -183,7 +185,13 @@ RRTStarNode *RRTStar::findNode(const Point &start, const Point &goal) {
 }
 
 std::vector<Point> RRTStar::findPath(const Point &start, const Point &goal) {
-	return RRTStarTree::getPointsToRoot(findNode(start, goal));
+	auto *goal_node = findNode(start, goal);
+	if (goal_node == nullptr) {
+		return std::vector<Point>();
+	}
+	auto path = RRTStarTree::getPointsToRoot(goal_node);
+	std::reverse(path.begin(), path.end());
+	return path;
 }
 void RRTStar::freeProblem() { delete m_tree.root; }
 
