@@ -4,6 +4,7 @@
 #include "inc/point.hpp"
 #include "inc/polygon.hpp"
 
+#include <random>
 #include <inttypes.h>
 #include <unordered_set>
 #include <functional>
@@ -35,7 +36,6 @@ private:
 
 	uint64_t m_steps_to_root;
 	Point m_point;
-	double m_g;
 
 private:
 	static void removeNode(RRTStarNode *node);
@@ -94,6 +94,8 @@ private:
 	Point m_goal;
 
 	RRTStarTree m_tree;
+
+	std::mt19937 gen;
 
 private:
 	RRTStarNode *closestNode(const Point &p);
