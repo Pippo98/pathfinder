@@ -110,87 +110,108 @@ bool PointIntersectsObstacle(const Point &point1, const Point &point2, const std
 	return false;
 }
 
-RRTStarNode *RRTStar::findNode(const Point &start, const Point &goal) {
+bool IntersectsOrContained(const Point &contained, const Point &point2, const std::vector<Polygon> &obstacles) {
+	for (const Polygon &obstacle : obstacles) {
+		if (obstacle.contains(contained) || obstacle.intersects(contained, point2)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+RRTStarNode *RRTStar::iterateOnce() {
+	RRTStarNode *new_node = nullptr;
+	auto new_p = sample();
+	auto nearest = closestNode(new_p);
+	auto &nearest_p = nearest->p();
+
+	if (new_p.distance(nearest_p) > m_config.step_size) {
+		new_p = nearest_p + ((new_p - nearest_p).normalize() * m_config.step_size);
+	}
+	if (IntersectsOrContained(new_p, nearest_p, m_obstacles)) {
+		return nullptr;
+	}
+	auto close_nodes = closeNodes(new_p, m_config.step_size);
+	if (close_nodes.size() != 0) {
+		RRTStarNode *best_node = nullptr;
+		double g = std::numeric_limits<double>::max();
+		bool cached_intersections[close_nodes.size()];
+		for (int i = 0; i < close_nodes.size(); i++) {
+			cached_intersections[i] = PointIntersectsObstacle(new_p, close_nodes[i]->p(), m_obstacles);
+			if (cached_intersections[i]) {
+				continue;
+			}
+			double new_g = close_nodes[i]->g() + new_p.distance(close_nodes[i]->p());
+			if (new_g < g) {
+				g = new_g;
+				best_node = close_nodes[i];
+			}
+		}
+		if (best_node) {
+			new_node = best_node->addChild(new_p);
+			for (int i = 0; i < close_nodes.size(); i++) {
+				if (close_nodes[i] == best_node) {
+					continue;
+				}
+				if (cached_intersections[i]) {
+					continue;
+				}
+				double candidate_g = new_node->g() + new_p.distance(close_nodes[i]->p());
+				if (candidate_g < close_nodes[i]->g()) {
+					close_nodes[i]->setParent(best_node);
+				}
+			}
+		}
+	}
+	if (new_node == nullptr) {
+		new_node = nearest->addChild(new_p);
+	}
+	// Update goal node
+	double dist_to_goal = new_node->p().distance(m_goal);
+	if (dist_to_goal < m_config.goal_radius) {
+		if (!goal_node || dist_to_goal < goal_node->p().distance(m_goal)) {
+			goal_node = new_node;
+		}
+	}
+	return new_node;
+}
+
+bool RRTStar::findPath(const Point &start, const Point &goal) {
 	freeProblem();
 	m_tree.root = new RRTStarNode(start);
 	m_start = start;
 	m_goal = goal;
 	if (PointInObstacle(goal, m_obstacles)) {
-		return nullptr;
+		return false;
 	}
 
 	bool updated_iterations = false;
-	RRTStarNode *goal_node = nullptr;
-	double min_dist_to_goal = start.distance(goal);
 	size_t last_iteration = m_config.max_iterations;
 	for (int i = 0; i < last_iteration; i++) {
-		auto new_p = sample(m_config.step_size * 10.0);
-		auto nearest = closestNode(new_p);
-		auto &nearest_p = nearest->p();
-
-		if (new_p.distance(nearest_p) > m_config.step_size) {
-			new_p = nearest_p + ((new_p - nearest_p).normalize() * m_config.step_size);
-		}
-		if (PointInObstacle(new_p, m_obstacles) || PointIntersectsObstacle(nearest_p, new_p, m_obstacles)) {
-			continue;
-		}
-		RRTStarNode *new_node = nullptr;
-		auto close_nodes = closeNodes(new_p, m_config.step_size);
-		if (close_nodes.size() != 0) {
-			RRTStarNode *best_node = nullptr;
-			double g = std::numeric_limits<double>::max();
-			for (const auto &node : close_nodes) {
-				if (PointIntersectsObstacle(new_p, node->p(), m_obstacles)) {
-					continue;
-				}
-				double new_g = node->g() + new_p.distance(node->p());
-				if (new_g < g) {
-					g = new_g;
-					best_node = node;
-				}
-			}
-			if (best_node) {
-				new_node = best_node->addChild(new_p);
-				for (auto node : close_nodes) {
-					if (node == best_node) {
-						continue;
-					}
-					if (PointIntersectsObstacle(new_p, node->p(), m_obstacles)) {
-						continue;
-					}
-					double candidate_g = new_node->g() + new_p.distance(node->p());
-					if (candidate_g < node->g()) {
-						node->setParent(best_node);
-					}
-				}
-			}
-		}
-		if (new_node == nullptr) {
-			new_node = nearest->addChild(new_p);
-		}
-		double dist_to_goal = new_node->p().distance(goal);
-		if (dist_to_goal < min_dist_to_goal) {
-			min_dist_to_goal = dist_to_goal;
-			goal_node = new_node;
-		}
-		if (!updated_iterations && dist_to_goal < m_config.goal_radius) {
+		iterateOnce();
+		if (!updated_iterations && goal_node) {
 			updated_iterations = true;
 			last_iteration = i + m_config.smoothen_iterations;
 		}
 	}
-	return goal_node;
+	return goal_node != nullptr;
+}
+void RRTStar::freeProblem() {
+	delete m_tree.root;
+	goal_node = nullptr;
 }
 
-std::vector<Point> RRTStar::findPath(const Point &start, const Point &goal) {
-	auto *goal_node = findNode(start, goal);
-	if (goal_node == nullptr) {
-		return std::vector<Point>();
-	}
+std::vector<Point> RRTStar::constructPath() {
 	auto path = RRTStarTree::getPointsToRoot(goal_node);
 	std::reverse(path.begin(), path.end());
 	return path;
 }
-void RRTStar::freeProblem() { delete m_tree.root; }
+
+void RRTStar::smoothPath(size_t iterations) {
+	for (size_t i = 0; i < iterations; i++) {
+		iterateOnce();
+	}
+}
 
 RRTStarNode *RRTStar::closestNode(const Point &p) {
 	RRTStarNode *closest;
@@ -216,25 +237,7 @@ std::vector<RRTStarNode *> RRTStar::closeNodes(const Point &p, double radius) {
 	return nodes;
 }
 
-Point RRTStar::sample(double weight_factor) {
-	/*
-	std::random_device rd;
-	std::mt19937 gen(rd());
-
-	double std_dev = std::sqrt(m_bounds.width() * 20);
-
-	double min_x = m_bounds.center().x() - m_bounds.width() / 2.0;
-	double min_y = m_bounds.center().y() - m_bounds.height() / 2.0;
-	double max_x = min_x + m_bounds.width();
-	double max_y = min_y + m_bounds.height();
-
-	std::normal_distribution<double> dist_x(m_goal.x(), std_dev);
-	std::normal_distribution<double> dist_y(m_goal.y(), std_dev);
-
-	double x = std::max(min_x, std::min(dist_x(gen), max_x));
-	double y = std::max(min_y, std::min(dist_y(gen), max_y));
-	*/
-
+Point RRTStar::sample() {
 	std::uniform_real_distribution<> dis(0, 1);
 
 	double x = dis(gen) * m_bounds.width() + m_bounds.center().x() - m_bounds.width() / 2.0;

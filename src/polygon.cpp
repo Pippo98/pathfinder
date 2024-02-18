@@ -23,11 +23,11 @@ bool Polygon::intersects(const Point &point1, const Point &point2) const {
 		if (this->at(i) == point1 || this->at(i) == point2 || this->at(j) == point1 || this->at(j) == point2) {
 			continue;
 		}
-		double x1 = this->at(i).x(), y1 = this->at(i).y();
-		double x2 = this->at(j).x(), y2 = this->at(j).y();
-		double x3 = point1.x(), y3 = point1.y();
-		double x4 = point2.x(), y4 = point2.y();
-		double denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+		const double x1 = this->at(i).x(), y1 = this->at(i).y();
+		const double x2 = this->at(j).x(), y2 = this->at(j).y();
+		const double x3 = point1.x(), y3 = point1.y();
+		const double x4 = point2.x(), y4 = point2.y();
+		const double denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
 		if (std::abs(denom) < 10.0 * std::numeric_limits<double>::epsilon()) {
 			continue;
 		}

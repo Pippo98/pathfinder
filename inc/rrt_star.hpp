@@ -71,14 +71,16 @@ public:
 class RRTStar {
 public:
 	RRTStar();
+	void freeProblem();
 
 	void setConfig(const RRTStarConfig &config);
 	void setBounds(const Rectangle &bounds);
 	void setObstacles(const std::vector<Polygon> &obstacles);
 
-	RRTStarNode *findNode(const Point &start, const Point &goal);
-	std::vector<Point> findPath(const Point &start, const Point &goal);
-	void freeProblem();
+	bool findPath(const Point &start, const Point &goal);
+	std::vector<Point> constructPath();
+
+	void smoothPath(size_t iterations);
 
 	const Rectangle &bounds() const { return m_bounds; }
 	const std::vector<Polygon> &obstacles() const { return m_obstacles; }
@@ -94,13 +96,17 @@ private:
 	Point m_goal;
 
 	RRTStarTree m_tree;
+	RRTStarNode *goal_node;
 
 	std::mt19937 gen;
 
 private:
+	RRTStarNode *iterateOnce();
+	RRTStarNode *findNode(const Point &start, const Point &goal);
+
 	RRTStarNode *closestNode(const Point &p);
 	std::vector<RRTStarNode *> closeNodes(const Point &p, double radius);
-	Point sample(double weight_factor);
+	Point sample();
 };
 
 #endif // _RRT_STAR_HPP
