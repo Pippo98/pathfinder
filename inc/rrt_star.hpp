@@ -18,12 +18,11 @@ public:
 	RRTStarNode(RRTStarNode *parent, const Point &p);
 
 	void remove();
-	void removeChild(RRTStarNode *node);
 
 	RRTStarNode *addChild();
 	RRTStarNode *addChild(const Point &p);
 
-	double g();
+	double g() const;
 	Point &p();
 	uint64_t steps_to_root();
 
@@ -36,9 +35,6 @@ private:
 
 	uint64_t m_steps_to_root;
 	Point m_point;
-
-private:
-	static void removeNode(RRTStarNode *node);
 };
 
 class RRTStarTree {
@@ -82,6 +78,7 @@ public:
 	std::vector<Point> constructPath();
 
 	void smoothPath(size_t iterations);
+	void removeSomeNodes(size_t count);
 
 	const Rectangle &bounds() const { return m_bounds; }
 	const std::vector<Polygon> &obstacles() const { return m_obstacles; }

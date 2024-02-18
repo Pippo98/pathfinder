@@ -14,25 +14,15 @@ RRTStarNode::RRTStarNode(RRTStarNode *_parent, const Point &_p) {
 
 void RRTStarNode::remove() {
 	if (m_parent != nullptr) {
-		m_parent->removeChild(this);
-	} else {
-		RRTStarNode::removeNode(this);
+		m_parent->m_children.erase(this);
 	}
-}
-void RRTStarNode::removeChild(RRTStarNode *node) {
-	auto child = m_children.find(node);
-	if (child != m_children.end()) {
-		RRTStarNode::removeNode(node);
-		m_children.erase(child);
+	for (RRTStarNode *child : m_children) {
+		child->m_parent = m_parent;
+		if (m_parent != nullptr) {
+			m_parent->m_children.insert(child);
+		}
+		child->m_steps_to_root = m_steps_to_root + child->m_steps_to_root;
 	}
-}
-void RRTStarNode::removeNode(RRTStarNode *node) {
-	while (!node->m_children.empty()) {
-		auto to_remove = node->m_children.begin();
-		removeNode(*to_remove);
-		node->m_children.erase(to_remove);
-	}
-	delete node;
 }
 
 RRTStarNode *RRTStarNode::addChild() { return addChild(Point()); }
@@ -42,8 +32,8 @@ RRTStarNode *RRTStarNode::addChild(const Point &p) {
 	return new_node;
 }
 
-double RRTStarNode::g() {
-	if (m_parent != nullptr) {
+double RRTStarNode::g() const {
+	if (m_parent != nullptr) [[likely]] {
 		return m_parent->g() + m_point.distance(m_parent->m_point);
 	} else {
 		return 0.0;
@@ -216,6 +206,20 @@ std::vector<Point> RRTStar::constructPath() {
 void RRTStar::smoothPath(size_t iterations) {
 	for (size_t i = 0; i < iterations; i++) {
 		iterateOnce();
+	}
+}
+void RRTStar::removeSomeNodes(size_t count) {
+	// remove nodes with highest g
+	std::vector<RRTStarNode *> nodes;
+	RRTStarTree::recursiveIteratorFast(m_tree.root, &nodes, [](RRTStarNode *node, void *data) {
+		auto nodes = (std::vector<RRTStarNode *> *)data;
+		nodes->push_back(node);
+	});
+
+	std::sort(nodes.begin(), nodes.end(), [](const RRTStarNode *a, const RRTStarNode *b) { return a->g() > b->g(); });
+
+	for (size_t i = 0; nodes.size() > 0 && i < count; i++) {
+		nodes[i]->remove();
 	}
 }
 

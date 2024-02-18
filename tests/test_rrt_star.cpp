@@ -33,6 +33,7 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 	rrt_star.smoothPath(3000);
+	rrt_star.removeSomeNodes(1000);
 	auto path = rrt_star.constructPath();
 	auto t1 = clock::now();
 	ms delta = std::chrono::duration_cast<ms>(t1 - t0);
