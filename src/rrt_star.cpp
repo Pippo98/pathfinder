@@ -58,10 +58,16 @@ void RRTStarNode::setParent(RRTStarNode *parent) { m_parent = parent; }
 RRTStarTree::RRTStarTree() : RRTStarTree(Point()) {}
 RRTStarTree::RRTStarTree(const Point &p) { root = new RRTStarNode(p); }
 RRTStarTree::RRTStarTree(RRTStarNode *_root) { root = root; }
-void RRTStarTree::recursiveIterator(RRTStarNode *node, std::function<void(RRTStarNode *node)> callback) {
+void RRTStarTree::recursiveIteratorSlow(RRTStarNode *node, std::function<void(RRTStarNode *node)> callback) {
 	callback(node);
 	for (RRTStarNode *child : node->m_children) {
-		recursiveIterator(child, callback);
+		recursiveIteratorSlow(child, callback);
+	}
+}
+void RRTStarTree::recursiveIteratorFast(RRTStarNode *node, void *data, void(callback)(RRTStarNode *node, void *data)) {
+	callback(node, data);
+	for (RRTStarNode *child : node->m_children) {
+		recursiveIteratorFast(child, data, callback);
 	}
 }
 std::vector<Point> RRTStarTree::getPointsToRoot(RRTStarNode *from) {
@@ -216,10 +222,18 @@ void RRTStar::smoothPath(size_t iterations) {
 RRTStarNode *RRTStar::closestNode(const Point &p) {
 	RRTStarNode *closest;
 	double dist = std::numeric_limits<double>::max();
-	RRTStarTree::recursiveIterator(m_tree.root, [&p, &closest, &dist](RRTStarNode *node) {
-		if (dist > p.distance(node->p())) {
-			dist = p.distance(node->p());
-			closest = node;
+
+	struct tmpData {
+		RRTStarNode **closest;
+		double *dist;
+		Point p;
+	} data = {&closest, &dist, p};
+
+	RRTStarTree::recursiveIteratorFast(m_tree.root, &data, [](RRTStarNode *node, void *data_) {
+		auto data = (tmpData *)data_;
+		if (node->p().distance(data->p) < *data->dist) {
+			*data->dist = node->p().distance(data->p);
+			*data->closest = node;
 		}
 	});
 
@@ -228,9 +242,16 @@ RRTStarNode *RRTStar::closestNode(const Point &p) {
 std::vector<RRTStarNode *> RRTStar::closeNodes(const Point &p, double radius) {
 	std::vector<RRTStarNode *> nodes;
 
-	RRTStarTree::recursiveIterator(m_tree.root, [&p, &nodes, &radius](RRTStarNode *node) {
-		if (p.distance(node->p()) < radius) {
-			nodes.push_back(node);
+	struct tmpData {
+		std::vector<RRTStarNode *> *nodes;
+		const Point &p;
+		double radius;
+	} data = {&nodes, p, radius};
+
+	RRTStarTree::recursiveIteratorFast(m_tree.root, &data, [](RRTStarNode *node, void *data_) {
+		auto data = (tmpData *)data_;
+		if (data->p.distance(node->p()) < data->radius) {
+			data->nodes->push_back(node);
 		}
 	});
 

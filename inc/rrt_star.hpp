@@ -52,7 +52,8 @@ public:
 
 	static std::vector<Point> getPointsToRoot(RRTStarNode *from);
 	static std::vector<RRTStarNode *> getNodesToRoot(RRTStarNode *from);
-	static void recursiveIterator(RRTStarNode *node, std::function<void(RRTStarNode *node)> callback);
+	static void recursiveIteratorSlow(RRTStarNode *node, std::function<void(RRTStarNode *node)> callback);
+	static void recursiveIteratorFast(RRTStarNode *node, void *data, void(callback)(RRTStarNode *node, void *data));
 
 private:
 	RRTStarNode *root;

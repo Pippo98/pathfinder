@@ -49,7 +49,7 @@ int main(void) {
 	std::ofstream f_tree;
 	f_tree.open("tree.csv");
 	f_tree << "x,y" << std::endl;
-	RRTStarTree::recursiveIterator(rrt_star.tree().getRoot(), [&f_tree](RRTStarNode *node) {
+	RRTStarTree::recursiveIteratorSlow(rrt_star.tree().getRoot(), [&f_tree](RRTStarNode *node) {
 		f_tree << node->p().x() << "," << node->p().y() << std::endl;
 	});
 
